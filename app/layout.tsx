@@ -5,7 +5,7 @@ import Header from './components/Header';
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className="flex bg-gray-100 min-h-screen">
+      <body className="flex bg-gray-100 min-h-screen text-gray-900">
         {/* Barra lateral */}
         <Sidebar />
 

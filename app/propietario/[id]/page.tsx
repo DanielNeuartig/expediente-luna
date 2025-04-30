@@ -60,8 +60,13 @@ export default async function PropietarioPage({ params }: Props) {
             {propietario.mascotas.map((m) => (
               <li key={m.id} className="bg-white shadow p-4 rounded-xl">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-medium">🐶 {m.nombre}</span>
-                  {/* Aquí puedes poner botón "Ver expediente" si quieres */}
+                  <Link
+                    href={`/mascota/${m.id}`}
+                    className="text-lg font-medium text-blue-600 hover:underline"
+                  >
+                    🐶 {m.nombre}
+                  </Link>
+                  {/* Aquí podrías agregar botones secundarios como editar o eliminar */}
                 </div>
               </li>
             ))}

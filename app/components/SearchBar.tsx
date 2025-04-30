@@ -132,7 +132,7 @@ export default function SearchBar() {
 
       {mostrarDropdown && (
         <div
-          className="absolute top-full left-0 mt-2 w-full bg-white rounded-2xl shadow-lg z-[9999] border border-gray-200 max-h-64 overflow-y-auto"
+          className="absolute top-full left-0 mt-2 w-full rounded-2xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-xl z-[9999] max-h-64 overflow-y-auto animate-dropdown"
         >
           {listaCombinada.length === 0 && (
             <div className="px-4 py-4 text-center text-sm text-gray-500">
