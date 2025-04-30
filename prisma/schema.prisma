@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RolUsuario {
+  CEO
+  ADMIN
+  MEDICO
+}
+
+enum TipoVisita {
+  CONSULTA_GENERAL
+  CONTROL_SUBSECUENTE
+  // MEDICINA_PREVENTIVA, CIRUGIA y HOSPITALIZACION se agregarán más adelante
+}
+
+model UsuarioSistema {
+  id           Int             @id @default(autoincrement())
+  nombre       String
+  email        String          @unique
+  password     String
+  rol          RolUsuario
+  creadoEn     DateTime        @default(now())
+  actualizadoEn DateTime       @updatedAt
+
+  visitas      Visita[]        @relation("VisitasCreadas")
+}
+
+model Propietario {
+  id           Int             @id @default(autoincrement())
+  nombre       String
+  correos      String?
+  direccion    String?
+
+  telefonos    Telefono[]
+  mascotas     Mascota[]
+  creadoEn     DateTime        @default(now())
+  actualizadoEn DateTime       @updatedAt
+}
+
+model Telefono {
+  id             Int           @id @default(autoincrement())
+  numero         String
+  esPrincipal    Boolean       @default(false)
+  propietario    Propietario   @relation(fields: [propietarioId], references: [id])
+  propietarioId  Int
+  creadoEn       DateTime      @default(now())
+}
+
+model Mascota {
+  id              Int          @id @default(autoincrement())
+  nombre          String
+  especie         String
+  raza            String?
+  sexo            String?
+  color           String?
+  fechaNacimiento DateTime?
+  senasPartic     String?
+
+  propietario     Propietario  @relation(fields: [propietarioId], references: [id])
+  propietarioId   Int
+
+  datosMedicos    DatoMedico?
+  visitas         Visita[]
+  creadoEn        DateTime     @default(now())
+  actualizadoEn   DateTime     @updatedAt
+}
+
+model DatoMedico {
+  id              Int          @id @default(autoincrement())
+  mascota         Mascota      @relation(fields: [mascotaId], references: [id])
+  mascotaId       Int          @unique
+
+  esterilizado    Boolean
+  pesoActual      Float?
+  alergias        String?
+
+  creadoEn        DateTime     @default(now())
+  actualizadoEn   DateTime     @updatedAt
+}
+
+model Visita {
+  id               Int              @id @default(autoincrement())
+  mascota          Mascota          @relation(fields: [mascotaId], references: [id])
+  mascotaId        Int
+  tipo             TipoVisita
+  fecha            DateTime         @default(now())
+  edadMascota      Int?
+  peso             Float?
+  temperatura      Float?
+
+  historiaClinica  String?
+
+  medicamentos     MedicamentoRecetado[]
+  indicaciones     IndicacionMedica[]
+
+  procedimiento     String?
+  notasAdicionales String?
+
+  archivos         Archivo[]
+
+  creadoPor        UsuarioSistema?  @relation("VisitasCreadas", fields: [creadoPorId], references: [id])
+  creadoPorId      Int?
+
+  creadoEn         DateTime         @default(now())
+  actualizadoEn    DateTime         @updatedAt
+}
+
+model MedicamentoRecetado {
+  id           Int     @id @default(autoincrement())
+  visita       Visita  @relation(fields: [visitaId], references: [id])
+  visitaId     Int
+
+  descripcion  String
+  enReceta     Boolean @default(true)
+
+  creadoEn     DateTime @default(now())
+}
+
+model IndicacionMedica {
+  id           Int     @id @default(autoincrement())
+  visita       Visita  @relation(fields: [visitaId], references: [id])
+  visitaId     Int
+
+  descripcion  String
+  enReceta     Boolean @default(true)
+
+  creadoEn     DateTime @default(now())
+}
+
+model Archivo {
+  id         Int     @id @default(autoincrement())
+  visita     Visita  @relation(fields: [visitaId], references: [id])
+  visitaId   Int
+  url        String
+  nombre     String
+  tipo       String    // mime-type
+  creadoEn   DateTime  @default(now())
+}
