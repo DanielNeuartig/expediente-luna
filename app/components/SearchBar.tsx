@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import DropdownPortal from './DropdownPortal';
 
 interface Telefono {
   numero: string;
@@ -130,81 +131,89 @@ export default function SearchBar() {
         className="w-full px-5 py-3 bg-gray-100 rounded-full border-none shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500 text-sm transition"
       />
 
-      {mostrarDropdown && (
-        <div
-          className="absolute top-full left-0 mt-2 w-full rounded-2xl border border-gray-200 bg-white/70 backdrop-blur-md shadow-xl z-[9999] max-h-64 overflow-y-auto animate-dropdown"
-        >
-          {listaCombinada.length === 0 && (
-            <div className="px-4 py-4 text-center text-sm text-gray-500">
-              Sin coincidencias
-            </div>
-          )}
-
-          {resultados.propietarios.length > 0 && (
-            <div className="px-4 pt-3 pb-1 text-xs text-gray-500 font-semibold uppercase tracking-wide">
-              Propietarios
-            </div>
-          )}
-          {resultados.propietarios.map((p, index) => {
-            const globalIndex = index;
-            const activo = globalIndex === highlightIndex;
-            const telefonoPrincipal = p.telefonos?.find(t => t.esPrincipal)?.numero;
-            return (
-              <div
-                key={p.id}
-                onClick={() => {
-                  limpiarBusqueda();
-                  router.push(`/propietario/${p.id}`);
-                }}
-                className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-all duration-150 ${
-                  activo ? 'bg-blue-50' : 'hover:bg-gray-100'
-                }`}
-              >
-                <span className="text-lg">👤</span>
-                <span className="flex-1 text-sm font-medium text-gray-900 truncate">
-                  {p.nombre}
-                  {telefonoPrincipal && (
-                    <span className="text-gray-500 text-sm ml-2 whitespace-nowrap">
-                      ({telefonoPrincipal})
-                    </span>
-                  )}
-                </span>
+      {mostrarDropdown && containerRef.current && (
+        <DropdownPortal>
+          <div
+            style={{
+              position: 'absolute',
+              top: containerRef.current.getBoundingClientRect().bottom + window.scrollY + 8,
+              left: containerRef.current.getBoundingClientRect().left + window.scrollX,
+              width: containerRef.current.offsetWidth,
+            }}
+            className="rounded-2xl border border-gray-200 bg-white shadow-2xl z-[9999] max-h-64 overflow-y-auto animate-dropdown"
+          >
+            {listaCombinada.length === 0 && (
+              <div className="px-4 py-4 text-center text-sm text-gray-500">
+                Sin coincidencias
               </div>
-            );
-          })}
+            )}
 
-          {resultados.mascotas.length > 0 && (
-            <div className="px-4 pt-3 pb-1 text-xs text-gray-500 font-semibold uppercase tracking-wide">
-              Mascotas
-            </div>
-          )}
-          {resultados.mascotas.map((m, index) => {
-            const globalIndex = resultados.propietarios.length + index;
-            const activo = globalIndex === highlightIndex;
-            return (
-              <div
-                key={m.id}
-                onClick={() => {
-                  limpiarBusqueda();
-                  router.push(`/mascota/${m.id}`);
-                }}
-                className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-all duration-150 ${
-                  activo ? 'bg-blue-50' : 'hover:bg-gray-100'
-                }`}
-              >
-                <span className="text-lg">🐶</span>
-                <span className="flex-1 text-sm font-medium text-gray-900 truncate">
-                  {m.nombre}
-                  {m.propietario?.nombre && (
-                    <span className="text-gray-500 text-sm ml-2 whitespace-nowrap">
-                      ({m.propietario.nombre})
-                    </span>
-                  )}
-                </span>
+            {resultados.propietarios.length > 0 && (
+              <div className="px-4 pt-3 pb-1 text-xs text-gray-500 font-semibold uppercase tracking-wide">
+                Propietarios
               </div>
-            );
-          })}
-        </div>
+            )}
+            {resultados.propietarios.map((p, index) => {
+              const globalIndex = index;
+              const activo = globalIndex === highlightIndex;
+              const telefonoPrincipal = p.telefonos?.find(t => t.esPrincipal)?.numero;
+              return (
+                <div
+                  key={p.id}
+                  onClick={() => {
+                    limpiarBusqueda();
+                    router.push(`/propietario/${p.id}`);
+                  }}
+                  className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-all duration-150 ${
+                    activo ? 'bg-blue-100 text-blue-900' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="text-lg">👤</span>
+                  <span className="flex-1 text-sm font-medium truncate">
+                    {p.nombre}
+                    {telefonoPrincipal && (
+                      <span className="text-gray-500 text-sm ml-2 whitespace-nowrap">
+                        ({telefonoPrincipal})
+                      </span>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+
+            {resultados.mascotas.length > 0 && (
+              <div className="px-4 pt-3 pb-1 text-xs text-gray-500 font-semibold uppercase tracking-wide">
+                Mascotas
+              </div>
+            )}
+            {resultados.mascotas.map((m, index) => {
+              const globalIndex = resultados.propietarios.length + index;
+              const activo = globalIndex === highlightIndex;
+              return (
+                <div
+                  key={m.id}
+                  onClick={() => {
+                    limpiarBusqueda();
+                    router.push(`/mascota/${m.id}`);
+                  }}
+                  className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-all duration-150 ${
+                    activo ? 'bg-blue-100 text-blue-900' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="text-lg">🐶</span>
+                  <span className="flex-1 text-sm font-medium truncate">
+                    {m.nombre}
+                    {m.propietario?.nombre && (
+                      <span className="text-gray-500 text-sm ml-2 whitespace-nowrap">
+                        ({m.propietario.nombre})
+                      </span>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </DropdownPortal>
       )}
     </div>
   );
