@@ -34,9 +34,6 @@ model UsuarioSistema {
 model Propietario {
   id           Int             @id @default(autoincrement())
   nombre       String
-  correos      String?
-  direccion    String?
-
   telefonos    Telefono[]
   mascotas     Mascota[]
   creadoEn     DateTime        @default(now())
