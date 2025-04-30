@@ -1,137 +1,97 @@
-"use client";
+'use client';
 
-import { useForm, useFieldArray } from "react-hook-form";
-import { useState } from "react";
+import { useState } from 'react';
 
-type FormData = {
-  nombre: string;
-  telefonos: { numero: string }[];
-};
+export default function RegistroPropietario() {
+  const [nombre, setNombre] = useState('');
+  const [telefonos, setTelefonos] = useState(['']);
 
-export default function NuevoPropietario() {
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm<FormData>({
-    defaultValues: {
-      nombre: "",
-      telefonos: [{ numero: "" }],
-    },
-  });
+  const agregarTelefono = () => {
+    setTelefonos([...telefonos, '']);
+  };
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "telefonos",
-  });
+  const quitarTelefono = (index: number) => {
+    const nuevos = telefonos.filter((_, i) => i !== index);
+    setTelefonos(nuevos);
+  };
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const actualizarTelefono = (index: number, valor: string) => {
+    const nuevos = [...telefonos];
+    nuevos[index] = valor;
+    setTelefonos(nuevos);
+  };
 
-  const onSubmit = async (data: FormData) => {
-    setIsSubmitting(true);
-    try {
-      const response = await fetch("/api/propietarios", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) throw new Error("Error al guardar el propietario");
-
-      alert("Propietario registrado correctamente");
-      reset();
-    } catch (error) {
-      alert("Ocurrió un error al registrar el propietario");
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const response = await fetch('/api/propietarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, telefonos }),
+    });
+    if (response.ok) {
+      alert('Propietario registrado con éxito');
+      setNombre('');
+      setTelefonos(['']);
+    } else {
+      alert('Error al registrar propietario');
     }
   };
 
   return (
-    <main className="flex justify-center items-center min-h-screen bg-white px-4">
-      <div className="w-full max-w-xl bg-gray-50 rounded-xl shadow-md p-8">
-        <h1 className="text-2xl font-semibold text-blue-900 mb-2">
-          Registrar nuevo propietario
-        </h1>
-        <p className="text-sm text-gray-600 mb-6">
-          Ingresa el nombre y número(s) de contacto del propietario.
-        </p>
+    <div className="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow-md mt-8">
+      <h1 className="text-2xl font-bold mb-6 text-center">Registrar Propietario</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Nombre completo</label>
+          <input
+            type="text"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            required
+            className="w-full border rounded-xl p-2"
+            placeholder="Ej. Juan Pérez"
+          />
+        </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Nombre */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre completo *
-            </label>
-            <input
-              type="text"
-              {...register("nombre", { required: "El nombre es obligatorio" })}
-              className="w-full bg-white text-gray-900 border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.nombre && (
-              <p className="text-red-500 text-sm mt-1">{errors.nombre.message}</p>
-            )}
-          </div>
-
-          {/* Teléfonos */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Teléfonos *
-            </label>
-            <div className="space-y-3">
-              {fields.map((field, index) => (
-                <div key={field.id} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder="Ej. 5544332211"
-                    {...register(`telefonos.${index}.numero` as const, {
-                      required: "El número es obligatorio",
-                      pattern: {
-                        value: /^[0-9]{7,15}$/,
-                        message: "Número inválido",
-                      },
-                    })}
-                    className="flex-1 bg-white text-gray-900 border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="text-red-500 text-sm hover:text-red-400"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => append({ numero: "" })}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                + Agregar otro teléfono
-              </button>
-              {errors.telefonos?.[0]?.numero && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.telefonos[0].numero.message}
-                </p>
+        <div>
+          <label className="block text-sm font-medium mb-2">Teléfonos</label>
+          {telefonos.map((tel, index) => (
+            <div key={index} className="flex items-center gap-2 mb-2">
+              <input
+                type="text"
+                value={tel}
+                onChange={(e) => actualizarTelefono(index, e.target.value)}
+                required
+                placeholder="Ej. 555-123-4567"
+                className="flex-1 border rounded-xl p-2"
+              />
+              {telefonos.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => quitarTelefono(index)}
+                  className="text-red-500 hover:text-red-700 text-sm"
+                >
+                  Quitar
+                </button>
               )}
             </div>
-          </div>
+          ))}
+          <button
+            type="button"
+            onClick={agregarTelefono}
+            className="text-blue-600 hover:text-blue-800 text-sm mt-1"
+          >
+            + Añadir otro teléfono
+          </button>
+        </div>
 
-          {/* Botón */}
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-md transition disabled:opacity-50 shadow-md"
-            >
-              {isSubmitting ? "Guardando..." : "Guardar propietario"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </main>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-xl"
+        >
+          Guardar propietario
+        </button>
+      </form>
+    </div>
   );
 }
