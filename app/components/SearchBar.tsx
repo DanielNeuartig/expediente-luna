@@ -1,220 +1,95 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import DropdownPortal from './DropdownPortal';
+import { ChangeEvent, useEffect, useState, RefObject } from 'react'
 
-interface Telefono {
-  numero: string;
-  esPrincipal: boolean;
+type Mascota = {
+  id: number
+  nombre: string
+  propietario: {
+    nombre: string
+  }
 }
 
-interface Propietario {
-  id: number;
-  nombre: string;
-  telefonos?: Telefono[];
-  tipo: 'propietario';
+type Propietario = {
+  id: number
+  nombre: string
+  telefonos: { numero: string; esPrincipal: boolean }[]
 }
 
-interface Mascota {
-  id: number;
-  nombre: string;
-  propietario?: {
-    nombre: string;
-    telefonos?: Telefono[];
-  };
-  tipo: 'mascota';
-}
-
-type Resultado = Propietario | Mascota;
-
-export default function SearchBar() {
-  const [query, setQuery] = useState('');
+export default function SearchBar({
+  inputRef,
+  onClose,
+}: {
+  inputRef?: RefObject<HTMLInputElement>
+  onClose?: () => void
+}) {
+  const [query, setQuery] = useState('')
   const [resultados, setResultados] = useState<{
-    propietarios: Propietario[];
-    mascotas: Mascota[];
-  }>({ propietarios: [], mascotas: [] });
-
-  const [mostrarDropdown, setMostrarDropdown] = useState(false);
-  const [highlightIndex, setHighlightIndex] = useState<number>(0);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-
-  const listaCombinada: Resultado[] = [
-    ...resultados.propietarios.map((p) => ({ ...p, tipo: 'propietario' as const })),
-    ...resultados.mascotas.map((m) => ({ ...m, tipo: 'mascota' as const })),
-  ];
+    mascotas: Mascota[]
+    propietarios: Propietario[]
+  }>({ mascotas: [], propietarios: [] })
 
   useEffect(() => {
-    if (query.length < 2) {
-      setMostrarDropdown(false);
-      return;
-    }
-
-    const delay = setTimeout(async () => {
-      const res = await fetch(`/api/buscar?q=${query}`);
-      const data = await res.json();
-      setResultados(data);
-      setMostrarDropdown(true);
-      setHighlightIndex(0);
-    }, 300);
-
-    return () => clearTimeout(delay);
-  }, [query]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        limpiarBusqueda();
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const isInputFocused = document.activeElement === inputRef.current;
-      if (!isInputFocused || !mostrarDropdown) return;
-
-      if (event.key === 'Escape') {
-        limpiarBusqueda();
+    const timeout = setTimeout(() => {
+      if (query.trim().length === 0) {
+        setResultados({ mascotas: [], propietarios: [] })
+        return
       }
 
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setHighlightIndex((prev) => (prev + 1) % listaCombinada.length);
-      }
+      fetch(`/api/buscar?q=${encodeURIComponent(query)}`)
+        .then((res) => res.json())
+        .then((data) => setResultados(data))
+        .catch(() => setResultados({ mascotas: [], propietarios: [] }))
+    }, 300)
 
-      if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        setHighlightIndex((prev) =>
-          prev <= 0 ? listaCombinada.length - 1 : prev - 1
-        );
-      }
+    return () => clearTimeout(timeout)
+  }, [query])
 
-      if (event.key === 'Enter' && highlightIndex >= 0) {
-        const item = listaCombinada[highlightIndex];
-        limpiarBusqueda();
-        if (item.tipo === 'propietario') {
-          router.push(`/propietario/${item.id}`);
-        } else {
-          router.push(`/mascota/${item.id}`);
-        }
-      }
-    };
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value)
+  }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [highlightIndex, listaCombinada, mostrarDropdown]);
-
-  const limpiarBusqueda = () => {
-    setQuery('');
-    setResultados({ propietarios: [], mascotas: [] });
-    setMostrarDropdown(false);
-    setHighlightIndex(0);
-  };
+  const handleClickResultado = () => {
+    if (onClose) onClose()
+  }
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-md">
+    <div className="w-full space-y-4">
       <input
-        ref={inputRef}
         type="text"
+        ref={inputRef}
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Buscar propietario, mascota o teléfono"
-        className="w-full px-5 py-3 bg-gray-100 rounded-full border-none shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500 text-sm transition"
+        onChange={handleChange}
+        placeholder="Buscar por nombre o teléfono..."
+        className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      {mostrarDropdown && containerRef.current && (
-        <DropdownPortal>
-          <div
-            style={{
-              position: 'absolute',
-              top: containerRef.current.getBoundingClientRect().bottom + window.scrollY + 8,
-              left: containerRef.current.getBoundingClientRect().left + window.scrollX,
-              width: containerRef.current.offsetWidth,
-            }}
-            className="rounded-2xl border border-gray-200 bg-white shadow-2xl z-[9999] max-h-64 overflow-y-auto animate-dropdown"
-          >
-            {listaCombinada.length === 0 && (
-              <div className="px-4 py-4 text-center text-sm text-gray-500">
-                Sin coincidencias
-              </div>
-            )}
+      {(resultados.mascotas.length > 0 || resultados.propietarios.length > 0) && (
+        <div className="space-y-2">
+          {resultados.propietarios.map((p) => (
+            <div
+              key={`p-${p.id}`}
+              className="bg-gray-100 p-2 rounded shadow-sm text-sm cursor-pointer hover:bg-gray-200"
+              onClick={handleClickResultado}
+            >
+              👤 {p.nombre}{' '}
+              {p.telefonos.find((t) => t.esPrincipal)?.numero
+                ? `(${p.telefonos.find((t) => t.esPrincipal)?.numero})`
+                : ''}
+            </div>
+          ))}
 
-            {resultados.propietarios.length > 0 && (
-              <div className="px-4 pt-3 pb-1 text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                Propietarios
-              </div>
-            )}
-            {resultados.propietarios.map((p, index) => {
-              const globalIndex = index;
-              const activo = globalIndex === highlightIndex;
-              const telefonoPrincipal = p.telefonos?.find(t => t.esPrincipal)?.numero;
-              return (
-                <div
-                  key={p.id}
-                  onClick={() => {
-                    limpiarBusqueda();
-                    router.push(`/propietario/${p.id}`);
-                  }}
-                  className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-all duration-150 ${
-                    activo ? 'bg-blue-100 text-blue-900' : 'hover:bg-gray-100'
-                  }`}
-                >
-                  <span className="text-lg">👤</span>
-                  <span className="flex-1 text-sm font-medium truncate">
-                    {p.nombre}
-                    {telefonoPrincipal && (
-                      <span className="text-gray-500 text-sm ml-2 whitespace-nowrap">
-                        ({telefonoPrincipal})
-                      </span>
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-
-            {resultados.mascotas.length > 0 && (
-              <div className="px-4 pt-3 pb-1 text-xs text-gray-500 font-semibold uppercase tracking-wide">
-                Mascotas
-              </div>
-            )}
-            {resultados.mascotas.map((m, index) => {
-              const globalIndex = resultados.propietarios.length + index;
-              const activo = globalIndex === highlightIndex;
-              return (
-                <div
-                  key={m.id}
-                  onClick={() => {
-                    limpiarBusqueda();
-                    router.push(`/mascota/${m.id}`);
-                  }}
-                  className={`px-4 py-3 flex items-center gap-3 cursor-pointer transition-all duration-150 ${
-                    activo ? 'bg-blue-100 text-blue-900' : 'hover:bg-gray-100'
-                  }`}
-                >
-                  <span className="text-lg">🐶</span>
-                  <span className="flex-1 text-sm font-medium truncate">
-                    {m.nombre}
-                    {m.propietario?.nombre && (
-                      <span className="text-gray-500 text-sm ml-2 whitespace-nowrap">
-                        ({m.propietario.nombre})
-                      </span>
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </DropdownPortal>
+          {resultados.mascotas.map((m) => (
+            <div
+              key={`m-${m.id}`}
+              className="bg-blue-100 p-2 rounded shadow-sm text-sm cursor-pointer hover:bg-blue-200"
+              onClick={handleClickResultado}
+            >
+              🐶 {m.nombre} – {m.propietario.nombre}
+            </div>
+          ))}
+        </div>
       )}
     </div>
-  );
+  )
 }

@@ -1,12 +1,11 @@
 import BuscadorEmergente from "@/components/BuscadorEmergente"
 
-export default function DashboardPage() {
+export default function DashboardPage() 
+{
   return (
     <>
       <BuscadorEmergente />
-      <div className="text-xl font-semibold">
-        Bienvenido al sistema de Expedientes Médicos Veterinarios
-      </div>
+      <h1 className="font-sans font-light text-m">Expediente Luna</h1>
     </>
   )
 }

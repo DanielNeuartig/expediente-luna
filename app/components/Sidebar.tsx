@@ -1,13 +1,14 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import { Home, Search, Users, PlusSquare } from "lucide-react"
+import Link from 'next/link'
+import { Home, Search, Users, PlusSquare } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 const menuItems = [
-  { href: "/dashboard", label: "Inicio", icon: Home },
-  { href: "/buscar", label: "Buscar", icon: Search },
-  { href: "/mascotas", label: "Mascotas", icon: Users },
-  { href: "/nueva", label: "Nuevo", icon: PlusSquare },
+  { href: '/dashboard', label: 'Inicio', icon: Home },
+  { href: '/buscar', label: 'Buscar', icon: Search },
+  { href: '/mascotas', label: 'Mascotas', icon: Users },
+  { href: '/nueva', label: 'Nuevo', icon: PlusSquare },
 ]
 
 export default function Sidebar({
@@ -20,11 +21,16 @@ export default function Sidebar({
   setBuscadorAbierto: (val: boolean) => void
 }) {
   return (
-    <aside className={`border-r p-4 flex flex-col gap-4 transition-all duration-300 ${contraido ? "w-20" : "w-64"}`}>
-      <h1 className="text-xl font-bold mb-6">{!contraido && "Expediente Luna"}</h1>
+    <motion.aside
+      animate={{ width: contraido ? 80 : 256 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="p-4 flex flex-col gap-4 overflow-hidden"
+      style={{ width: contraido ? 80 : 256, backgroundColor: '#1c2c34', color: 'white' }}
+    >
+      <h1 className="text-xl font-light mb-60">{!contraido && 'Expediente Lsuna'}</h1>
       <nav className="flex flex-col gap-2">
         {menuItems.map(({ href, label, icon: Icon }) => {
-          if (label === "Buscar") {
+          if (label === 'Buscar') {
             return (
               <button
                 key={href}
@@ -32,11 +38,10 @@ export default function Sidebar({
                   setBuscadorAbierto(true)
                   setContraido(true)
                 }}
-                
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition text-left w-full"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition text-left w-full"
               >
-                <Icon className="w-5 h-5" />
-                {!contraido && <span className="text-sm font-medium">{label}</span>}
+                <Icon className="w-5 h-5 text-white" />
+                {!contraido && <span className="text-sm font-medium text-white">{label}</span>}
               </button>
             )
           }
@@ -49,14 +54,14 @@ export default function Sidebar({
                 setContraido(false)
                 setBuscadorAbierto(false)
               }}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition"
             >
-              <Icon className="w-5 h-5" />
-              {!contraido && <span className="text-sm font-medium">{label}</span>}
+              <Icon className="w-5 h-5 text-white" />
+              {!contraido && <span className="text-sm font-medium text-white">{label}</span>}
             </Link>
           )
         })}
       </nav>
-    </aside>
+    </motion.aside>
   )
 }
