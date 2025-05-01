@@ -1,7 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800&display=swap');
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
-
+@import "tailwindcss";
 
 
 body {
@@ -45,4 +43,21 @@ select {
 
 .animate-dropdown {
   animation: fadeSlideIn 0.15s ease-out forwards;
+}
+
+:root {
+  --color-bg: #ffffff;
+  --color-text: #1c2c34;
+}
+
+[data-theme="turquesa"] {
+  --color-bg: #00ADB5;
+  --color-text: #ff3fff;
+}
+
+[data-theme="oscuro"] {
+  --color-bg: #222831;
+  --color-bgS: #393E46;
+  --color-d: #00ADB5;
+  --color-text: #EEEEEE;
 }

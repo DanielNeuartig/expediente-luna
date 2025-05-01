@@ -1,11 +1,19 @@
-import BuscadorEmergente from "@/components/BuscadorEmergente"
+'use client'
 
-export default function DashboardPage() 
-{
+import { useState } from 'react'
+import BuscadorEmergente from '@/components/BuscadorEmergente'
+import FormularioNuevoPropietario from '@/components/FormularioNuevoPropietario'
+
+export default function DashboardPage() {
+  const [mostrarFormulario, setMostrarFormulario] = useState(false)
+
   return (
     <>
       <BuscadorEmergente />
-      <h1 className="font-sans font-light text-m">Expediente Luna</h1>
+      
+      {mostrarFormulario && (
+        {/*<FormularioNuevoPropietario onClose={() => setMostrarFormulario(false)} />*/}
+      )}
     </>
-  )
+  ) 
 }

@@ -3,10 +3,12 @@
 import { ReactNode, useState } from "react"
 import Sidebar from "@/components/Sidebar"
 import BuscadorEmergente from "@/components/BuscadorEmergente"
+import FormularioNuevoPropietario from "@/components/FormularioNuevoPropietario"
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarContraido, setSidebarContraido] = useState(false)
   const [buscadorAbierto, setBuscadorAbierto] = useState(false)
+  const [formularioActivo, setFormularioActivo] = useState(false)
 
   const handleBuscadorChange = (abierto: boolean) => {
     setBuscadorAbierto(abierto)
@@ -20,11 +22,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         contraido={sidebarContraido}
         setContraido={setSidebarContraido}
         setBuscadorAbierto={setBuscadorAbierto}
+        setFormularioActivo={setFormularioActivo}
       />
 
-      {/* Main content con buscador embebido */}
+      {/* Main content */}
       <main className="flex-1 overflow-y-auto bg-gray-50 relative p-6">
         <BuscadorEmergente abierto={buscadorAbierto} setAbierto={handleBuscadorChange} />
+        <FormularioNuevoPropietario
+          visible={formularioActivo}
+          onClose={() => setFormularioActivo(false)}
+        />
         {children}
       </main>
     </div>
