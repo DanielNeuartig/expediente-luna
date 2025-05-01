@@ -60,4 +60,6 @@ select {
   --color-bgS: #393E46;
   --color-d: #00ADB5;
   --color-text: #EEEEEE;
+  --color-error: #FF4C4C;
+  --color-warn: #FF9800;
 }
