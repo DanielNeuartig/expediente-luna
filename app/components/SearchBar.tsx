@@ -80,17 +80,17 @@ export default function SearchBar({
       />
 
       {(resultados.mascotas.length > 0 || resultados.propietarios.length > 0) && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {resultados.propietarios.map((p) => {
             const mascotasDelPropietario = resultados.mascotas.filter(m => m.propietario.nombre === p.nombre)
             return (
               <div
-                key={`p-${p.id}`}
-                className="bg-[var(--color-bg)] p-4 rounded-md border border-[var(--color-d)] shadow-sm cursor-pointer hover:bg-[var(--color-bgT)]"
-                onClick={() => abrirExpedientePropietario(p)}
-              >
-                <div className="text-lg font-semibold text-[var(--color-text)] flex justify-between">
-                  <span>{p.nombre} ({p.telefonos.find((t) => t.esPrincipal)?.numero.replace(/(\d{2})(?=\d)/g, "$1 ").trim()})</span>
+              key={`p-${p.id}`}
+              className="group bg-[var(--color-bg)] p-3 rounded-md shadow-sm cursor-pointer hover:bg-[var(--color-d)]"
+              onClick={() => abrirExpedientePropietario(p)}
+            >
+              <div className="text-lg font-semibold text-[var(--color-text)] flex justify-between group-hover:text-[var(--color-text)]">
+                <span>{p.nombre} ({p.telefonos.find((t) => t.esPrincipal)?.numero.replace(/(\d{2})(?=\d)/g, "$1 ").trim()})</span>
                   <span className="text-sm text-[var(--color-text)] bg-[var(--color-bgS)]">
                     
                   </span>
@@ -99,7 +99,7 @@ export default function SearchBar({
                 {mascotasDelPropietario.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {mascotasDelPropietario.map((m) => (
-                      <div key={m.id} className="text-sm text-[var(--color-text)] bg-[var(--color-d)] px-3 py-1 rounded-full">
+                      <div key={m.id} className="text-sm text-[var(--color-text)] bg-[var(--color-d)] px-3 py-1 rounded-full group-hover:bg-[var(--color-bg)]">
                         🐶 {m.nombre}
                       </div>
                     ))}

@@ -163,7 +163,7 @@ export default function FormularioNuevoPropietario({ visible, onClose }: { visib
           className="w-full max-w-md bg-[var(--color-bg)] rounded-2xl border border-[var(--color-d)] shadow p-6"
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold !!text-[var(--color-text)]">Nuevo propietario</h2>
+            <h2 className="text-xl font-semibold text-[var(--color-text)]">Nuevo propietario</h2>
             <button onClick={cerrarFormulario} className="!!text-[var(--color-text)] text-2xl font-light">×</button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-5">

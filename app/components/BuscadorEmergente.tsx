@@ -53,12 +53,12 @@ export default function BuscadorEmergente({
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -300, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="absolute top-0 left-0 w-full md:w-1/2 lg:w-1/3 h-full bg-white shadow-lg z-50 p-6 border-r border-gray-200"
+          className="absolute top-0 left-0 w-full md:w-1/2 lg:w-1/3 h-full bg-[var(--color-bgS)] shadow-lg z-50 p-6"
         >
           <div className="flex justify-end mb-4">
             <button
               onClick={() => setAbierto(false)}
-              className="text-sm text-gray-500 hover:text-black"
+              className="text-sm text-[var(--color-text)] hover:text-[var(--color-d)]"
             >
               Cerrar ✕
             </button>
