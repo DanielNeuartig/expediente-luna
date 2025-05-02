@@ -4,8 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNotificaciones } from '@/context/NotificacionesContext'
 import { guardarPropietario } from '@/app/lib/api/guardarPropietario'
+import { useVistaPropietario } from '@/context/VistaPropietarioContext'
 
 export default function FormularioNuevoPropietario({ visible, onClose }: { visible: boolean, onClose: () => void }) {
+  const { mostrarExpediente } = useVistaPropietario();
   const { notificar } = useNotificaciones()
   const [nombre, setNombre] = useState('')
   const [telefonos, setTelefonos] = useState([{ numero: '' }])
@@ -140,6 +142,7 @@ export default function FormularioNuevoPropietario({ visible, onClose }: { visib
     const res = await guardarPropietario(datos.nombre, datos.telefonos)
     if (res.ok) {
       notificar({ tipo: 'success', mensaje: 'Propietario guardado exitosamente.' })
+      mostrarExpediente({ id: 0, nombre, telefonos: datos.telefonos.map((t, i) => ({ ...t, id: i })), mascotas: [] })
       cerrarFormulario()
       setCargando(false)
     } else {

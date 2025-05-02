@@ -1,5 +1,6 @@
 import './globals.css'
 import { NotificacionesProvider } from '@/context/NotificacionesContext'
+import { VistaPropietarioProvider } from '@/context/VistaPropietarioContext'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans bg-[var(--color-bg)] text-[var(--color-bgS)]">
         <NotificacionesProvider>
-          {children}
+          <VistaPropietarioProvider>
+            {children}
+          </VistaPropietarioProvider>
         </NotificacionesProvider>
       </body>
     </html>

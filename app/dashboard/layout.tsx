@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react"
 import Sidebar from "@/components/Sidebar"
 import BuscadorEmergente from "@/components/BuscadorEmergente"
 import FormularioNuevoPropietario from "@/components/FormularioNuevoPropietario"
+import VistaPropietario from "@/components/VistaPropietario"
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarContraido, setSidebarContraido] = useState(false)
@@ -32,6 +33,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           visible={formularioActivo}
           onClose={() => setFormularioActivo(false)}
         />
+                <VistaPropietario />
         {children}
       </main>
     </div>
