@@ -5,11 +5,14 @@ import Sidebar from "@/components/Sidebar"
 import BuscadorEmergente from "@/components/BuscadorEmergente"
 import FormularioNuevoPropietario from "@/components/FormularioNuevoPropietario"
 import VistaPropietario from "@/components/VistaPropietario"
+import { ContenedorRefProvider } from "@/context/ContenedorRefContext"
+import FormularioNuevaMascota from "@/components/FormularioNuevaMascota"
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarContraido, setSidebarContraido] = useState(false)
   const [buscadorAbierto, setBuscadorAbierto] = useState(false)
   const [formularioActivo, setFormularioActivo] = useState(false)
+  const [formularioMascotaActivo, setFormularioMascotaActivo] = useState<number | null>(null)
 
   const handleBuscadorChange = (abierto: boolean) => {
     setBuscadorAbierto(abierto)
@@ -27,15 +30,24 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto bg-gray-50 relative p-6">
-        <BuscadorEmergente abierto={buscadorAbierto} setAbierto={handleBuscadorChange} />
-        <FormularioNuevoPropietario
-          visible={formularioActivo}
-          onClose={() => setFormularioActivo(false)}
-        />
-                <VistaPropietario />
-        {children}
-      </main>
+      <ContenedorRefProvider>
+        <main className="flex-1 h-full min-h-screen overflow-y-auto bg-[var(--color-text)] relative p-6">
+          <BuscadorEmergente abierto={buscadorAbierto} setAbierto={handleBuscadorChange} />
+          <FormularioNuevoPropietario
+            visible={formularioActivo}
+            onClose={() => setFormularioActivo(false)}
+          />
+          <VistaPropietario setFormularioMascotaActivo={setFormularioMascotaActivo} />
+          {formularioMascotaActivo !== null && (
+            <FormularioNuevaMascota
+              visible={true}
+              propietarioId={formularioMascotaActivo}
+              onClose={() => setFormularioMascotaActivo(null)}
+            />
+          )}
+          {children}
+        </main>
+      </ContenedorRefProvider>
     </div>
   )
 }

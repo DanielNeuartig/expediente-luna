@@ -16,7 +16,11 @@ type Mascota = {
   especie: string
 }
 
-export default function VistaPropietario() {
+type Props = {
+  setFormularioMascotaActivo: (id: number | null) => void
+}
+
+export default function VistaPropietario({ setFormularioMascotaActivo }: Props) {
   const { propietario, mostrar, cerrarExpediente } = useVistaPropietario()
 
   const handleKey = useCallback((e: KeyboardEvent) => {
@@ -59,6 +63,14 @@ export default function VistaPropietario() {
                 <li key={m.id}>• {m.nombre} – {m.especie}</li>
               ))}
             </ul>
+          </div>
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => setFormularioMascotaActivo(propietario.id)}
+              className="px-4 py-2 bg-[var(--color-d)] text-[var(--color-text)] rounded-lg"
+            >
+              Registrar nueva mascota
+            </button>
           </div>
         </motion.div>
       )}

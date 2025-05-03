@@ -1,3 +1,5 @@
+// SCHEMA ACTUALIZADO
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,76 +9,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum RolUsuario {
-  CEO
-  ADMIN
-  MEDICO
-}
-
 enum TipoVisita {
   CONSULTA_GENERAL
   CONTROL_SUBSECUENTE
-  // MEDICINA_PREVENTIVA, CIRUGIA y HOSPITALIZACION se agregarán más adelante
+  PROCEDIMIENTO
 }
 
-model UsuarioSistema {
-  id           Int             @id @default(autoincrement())
-  nombre       String
-  email        String          @unique
-  password     String
-  rol          RolUsuario
-  creadoEn     DateTime        @default(now())
-  actualizadoEn DateTime       @updatedAt
+enum Sexo {
+  MACHO
+  HEMBRA
+  INDETERMINADO
+}
 
-  visitas      Visita[]        @relation("VisitasCreadas")
+enum Especie {
+  PERRO
+  GATO
+  REPTIL
+  ROEDOR
+  AVE
 }
 
 model Propietario {
-  id           Int             @id @default(autoincrement())
-  nombre       String
-  telefonos    Telefono[]
-  mascotas     Mascota[]
-  creadoEn     DateTime        @default(now())
-  actualizadoEn DateTime       @updatedAt
+  id            Int          @id @default(autoincrement())
+  nombre        String
+  telefonos     Telefono[]
+  mascotas      Mascota[]
+  creadoEn      DateTime     @default(now())
+  actualizadoEn DateTime     @updatedAt
 }
 
 model Telefono {
-  id             Int           @id @default(autoincrement())
-  numero         String
-  esPrincipal    Boolean       @default(false)
-  propietario    Propietario   @relation(fields: [propietarioId], references: [id])
-  propietarioId  Int
-  creadoEn       DateTime      @default(now())
+  id            Int          @id @default(autoincrement())
+  numero        String
+  esPrincipal   Boolean
+  propietario   Propietario  @relation(fields: [propietarioId], references: [id])
+  propietarioId Int
 }
 
 model Mascota {
   id              Int          @id @default(autoincrement())
   nombre          String
-  especie         String
+  especie         Especie
   raza            String?
-  sexo            String?
+  sexo            Sexo
   color           String?
   fechaNacimiento DateTime?
   senasPartic     String?
-
+  notas           String?
+  esterilizado    Boolean
+  alergias        String?
   propietario     Propietario  @relation(fields: [propietarioId], references: [id])
   propietarioId   Int
-
-  datosMedicos    DatoMedico?
   visitas         Visita[]
-  creadoEn        DateTime     @default(now())
-  actualizadoEn   DateTime     @updatedAt
-}
-
-model DatoMedico {
-  id              Int          @id @default(autoincrement())
-  mascota         Mascota      @relation(fields: [mascotaId], references: [id])
-  mascotaId       Int          @unique
-
-  esterilizado    Boolean
-  pesoActual      Float?
-  alergias        String?
-
   creadoEn        DateTime     @default(now())
   actualizadoEn   DateTime     @updatedAt
 }
@@ -86,56 +70,90 @@ model Visita {
   mascota          Mascota          @relation(fields: [mascotaId], references: [id])
   mascotaId        Int
   tipo             TipoVisita
+  tipoDeProcedimiento String?
+  reporteIngreso   String?
+  reporteFinal     String?
   fecha            DateTime         @default(now())
   edadMascota      Int?
   peso             Float?
   temperatura      Float?
-
   historiaClinica  String?
-
+  exploracionFisica String?
+  diagnosticoPresuntivoActual String?
+  pronostico       String?
   medicamentos     MedicamentoRecetado[]
   indicaciones     IndicacionMedica[]
-
-  procedimiento     String?
-  notasAdicionales String?
-
   archivos         Archivo[]
-
+  notasAdicionales String?
+  actualizaciones  Actualizacion[]
   creadoPor        UsuarioSistema?  @relation("VisitasCreadas", fields: [creadoPorId], references: [id])
   creadoPorId      Int?
-
+  cerrada          Boolean          @default(false)
+  fechaCierre      DateTime?
   creadoEn         DateTime         @default(now())
   actualizadoEn    DateTime         @updatedAt
 }
 
 model MedicamentoRecetado {
-  id           Int     @id @default(autoincrement())
-  visita       Visita  @relation(fields: [visitaId], references: [id])
-  visitaId     Int
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  dosis           String
+  via             String
+  veces           Int
+  cada            Int
+  iniciarEn       DateTime
+  enReceta        Boolean
+  motivoSuspension String?
+  visita          Visita   @relation(fields: [visitaId], references: [id])
+  visitaId        Int
+  creadoEn        DateTime @default(now())
+  aplicaciones    AplicacionMedicamento[]
+}
 
-  descripcion  String
-  enReceta     Boolean @default(true)
-
-  creadoEn     DateTime @default(now())
+model AplicacionMedicamento {
+  id            Int              @id @default(autoincrement())
+  medicamento   MedicamentoRecetado @relation(fields: [medicamentoId], references: [id])
+  medicamentoId Int
+  fecha         DateTime
+  visita        Visita           @relation(fields: [visitaId], references: [id])
+  visitaId      Int
+  usuario       UsuarioSistema   @relation(fields: [usuarioId], references: [id])
+  usuarioId     Int
+  observaciones String?
 }
 
 model IndicacionMedica {
-  id           Int     @id @default(autoincrement())
-  visita       Visita  @relation(fields: [visitaId], references: [id])
-  visitaId     Int
-
-  descripcion  String
-  enReceta     Boolean @default(true)
-
-  creadoEn     DateTime @default(now())
+  id        Int    @id @default(autoincrement())
+  texto     String
+  visita    Visita @relation(fields: [visitaId], references: [id])
+  visitaId  Int
 }
 
 model Archivo {
-  id         Int     @id @default(autoincrement())
-  visita     Visita  @relation(fields: [visitaId], references: [id])
-  visitaId   Int
-  url        String
-  nombre     String
-  tipo       String    // mime-type
-  creadoEn   DateTime  @default(now())
+  id        Int      @id @default(autoincrement())
+  url       String
+  visita    Visita   @relation(fields: [visitaId], references: [id])
+  visitaId  Int
+  creadoEn  DateTime @default(now())
+}
+
+model Actualizacion {
+  id        Int            @id @default(autoincrement())
+  visita    Visita         @relation(fields: [visitaId], references: [id])
+  visitaId  Int
+  descripcion String
+  fecha     DateTime       @default(now())
+  usuario   UsuarioSistema @relation(fields: [usuarioId], references: [id])
+  usuarioId Int
+}
+
+model UsuarioSistema {
+  id               Int              @id @default(autoincrement())
+  nombre           String
+  correo           String           @unique
+  contrasena       String
+  creadoEn         DateTime         @default(now())
+  ultimaConexion   DateTime?
+  visitas          Visita[]         @relation("VisitasCreadas")
+  actualizaciones  Actualizacion[]
 }
